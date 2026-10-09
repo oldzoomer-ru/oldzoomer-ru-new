@@ -1,1 +1,170 @@
-/* Add your styles here */
+@font-face {
+    font-family: 'Cantarell';
+    /* Так как ttf-файл лежит в той же папке, что и этот css, пишем просто имя файла */
+    src: url('fonts/Cantarell-VF.otf') format('opentype');
+    font-weight: 100 900; /* Поддержка вариативного шрифта (Variable Font) */
+    font-style: normal;
+}
+
+/* Базовые цвета и переменные GNOME Libadwaita */
+html {
+    /* Светлая тема по умолчанию */
+    --adwaita-bg: #f6f5f4;
+    --adwaita-card-bg: #ffffff;
+    --adwaita-card-border: rgba(0, 0, 0, 0.08);
+    --adwaita-text: #2e3436;
+    --adwaita-text-secondary: #777777;
+    --adwaita-accent: #3584e4;
+    --adwaita-header-bg: #ffffff;
+    
+    /* Переопределяем системные переменные Vaadin */
+    --aura-background-color: var(--adwaita-bg);
+    --aura-body-text-color: var(--adwaita-text);
+    --aura-font-family: "Inter", "Cantarell", "Segoe UI", sans-serif;
+}
+
+html[theme~="dark"] {
+    /* Темная тема GNOME Night */
+    --adwaita-bg: #242424;
+    --adwaita-card-bg: #303030;
+    --adwaita-card-border: rgba(255, 255, 255, 0.06);
+    --adwaita-text: #ffffff;
+    --adwaita-text-secondary: #9a9a9a;
+    --adwaita-header-bg: #1e1e1e;
+}
+
+/* Окно приложения */
+.adwaita-window {
+    background-color: var(--adwaita-bg);
+    color: var(--adwaita-text);
+}
+
+/* Заголовочная панель GNOME HeaderBar */
+.adwaita-header-bar {
+    background-color: var(--adwaita-header-bg);
+    border-bottom: 1px solid var(--adwaita-card-border);
+    height: 48px;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.adwaita-window-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    color: var(--adwaita-text);
+}
+
+/* Имитация кнопок управления окном в правом углу */
+.adwaita-window-controls {
+    position: absolute;
+    right: 12px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--adwaita-text-secondary);
+    opacity: 0.4;
+}
+
+/* Область контента: центрирование в стиле Libadwaita Map (max 780px) */
+.adwaita-content-container {
+    max-width: 680px;
+    margin: 0 auto;
+    overflow-y: auto;
+    padding: 24px 16px !important;
+}
+
+/* Суб-хидер с общей информацией */
+.adwaita-sub-header {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 24px;
+}
+.adwaita-contacts {
+    font-size: 13px;
+    color: var(--adwaita-text-secondary);
+    margin-bottom: 8px;
+}
+.adwaita-summary {
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Группа настроек (Секция) */
+.adwaita-pref-group {
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.adwaita-pref-group-title {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: var(--adwaita-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px 6px !important;
+}
+
+/* Нативная карточка Adwaita */
+.adwaita-card {
+    background-color: var(--adwaita-card-bg);
+    border: 1px solid var(--adwaita-card-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Строки внутри карточки и автоматические разделители */
+.adwaita-row {
+    width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--adwaita-card-border);
+}
+
+.adwaita-row:last-child {
+    border-bottom: none;
+}
+
+/* Элементы текста внутри строки */
+.adwaita-row-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin: 0 0 4px 0 !important;
+}
+
+.adwaita-row-subtitle {
+    font-size: 13px;
+    color: var(--adwaita-accent);
+    font-weight: 500;
+    margin: 0 0 8px 0;
+}
+
+.adwaita-row-description {
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0 0 8px 0;
+}
+
+.adwaita-row-highlights {
+    font-size: 14px;
+    padding-left: 20px;
+    margin: 0;
+    color: var(--adwaita-text);
+}
+
+/* Системные уведомления ошибок/загрузок */
+.loading, .warning, .error {
+    padding: 12px;
+    border-radius: 8px;
+    margin: 16px;
+    font-size: 14px;
+    text-align: center;
+    width: calc(100% - 32px);
+}
+.warning { background-color: #fef3c7; color: #92400e; }
+.error { background-color: #fee2e2; color: #991b1b; }
