@@ -150,14 +150,14 @@ public class ResumeDisplayService {
         // Группируем по уровню
         var grouped = skills.stream()
                 .collect(Collectors.groupingBy(
-                        s -> Optional.ofNullable(s.level()).orElse("Базовый"),
+                        s -> Optional.ofNullable(s.level()).orElse("Не указано"),
                         Collectors.mapping(Skill::name, Collectors.toList())
                 ));
 
         return grouped.entrySet().stream()
                 .sorted((a, b) -> {
                     // Порядок: Expert > Senior > Mid > Junior > Basic
-                    String order = "Expert,Senior,Mid,Junior,Basic,Bазовый";
+                    String order = "Expert,Senior,Mid,Junior,Basic,Не указано";
                     assert a.getKey() != null;
                     int ia = order.indexOf(a.getKey());
                     assert b.getKey() != null;
