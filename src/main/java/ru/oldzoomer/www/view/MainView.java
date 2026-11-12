@@ -3,7 +3,7 @@ package ru.oldzoomer.www.view;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import ru.oldzoomer.www.model.GitHubData;
+import ru.oldzoomer.www.service.GitHubDataService;
 import ru.oldzoomer.www.service.GitHubDisplayService;
 import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 
@@ -12,8 +12,8 @@ import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 @SuppressWarnings("this-escape")
 public class MainView extends BaseView {
 
-    public MainView(GitHubData gitHubData, GitHubDisplayService displayService) {
-        init(gitHubData, displayService);
+    public MainView(GitHubDataService gitHubDataService, GitHubDisplayService displayService) {
+        init(gitHubDataService, displayService);
         setupUI();
         loadGitHubData();
     }

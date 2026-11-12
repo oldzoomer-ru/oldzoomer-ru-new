@@ -14,6 +14,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
 import ru.oldzoomer.www.model.GitHubData;
+import ru.oldzoomer.www.service.GitHubDataService;
 import ru.oldzoomer.www.service.GitHubDisplayService;
 import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 import ru.oldzoomer.www.service.GitHubDisplayService.SectionItem;
@@ -27,14 +28,14 @@ import java.util.List;
  */
 public abstract class BaseView extends VerticalLayout implements BeforeEnterObserver, Serializable {
 
-    private transient GitHubData gitHubData;
+    private transient GitHubDataService gitHubDataService;
     private transient GitHubDisplayService displayService;
 
     protected BaseView() {
     }
 
-    protected void init(GitHubData gitHubData, GitHubDisplayService displayService) {
-        this.gitHubData = gitHubData;
+    protected void init(GitHubDataService gitHubDataService, GitHubDisplayService displayService) {
+        this.gitHubDataService = gitHubDataService;
         this.displayService = displayService;
     }
 
@@ -61,6 +62,13 @@ public abstract class BaseView extends VerticalLayout implements BeforeEnterObse
 
         try {
             removeAll();
+
+            GitHubData gitHubData = GitHubData.of(
+                    gitHubDataService.fetchProfile(),
+                    gitHubDataService.fetchProfileReadme(),
+                    gitHubDataService.fetchAllRepos(),
+                    gitHubDataService.fetchGists(),
+                    gitHubDataService.fetchActivity());
 
             GitHubDisplayData data = displayService.toDisplayData(gitHubData);
 
@@ -220,55 +228,50 @@ public abstract class BaseView extends VerticalLayout implements BeforeEnterObse
 
     private void metaDescription(String description) {
         getElement().executeJs(
-            "var meta = document.createElement('meta');" +
-            "meta.name = 'description';" +
-            "meta.content = $0;" +
-            "document.head.appendChild(meta);",
-            description
-        );
+                "var meta = document.createElement('meta');" +
+                        "meta.name = 'description';" +
+                        "meta.content = $0;" +
+                        "document.head.appendChild(meta);",
+                description);
     }
 
     private void geoLocation(String region, String placename) {
         getElement().executeJs(
-            "var meta1 = document.createElement('meta');" +
-            "meta1.name = 'geo.region';" +
-            "meta1.content = $0;" +
-            "document.head.appendChild(meta1);" +
-            "var meta2 = document.createElement('meta');" +
-            "meta2.name = 'geo.placename';" +
-            "meta2.content = $1;" +
-            "document.head.appendChild(meta2);",
-            region, placename
-        );
+                "var meta1 = document.createElement('meta');" +
+                        "meta1.name = 'geo.region';" +
+                        "meta1.content = $0;" +
+                        "document.head.appendChild(meta1);" +
+                        "var meta2 = document.createElement('meta');" +
+                        "meta2.name = 'geo.placename';" +
+                        "meta2.content = $1;" +
+                        "document.head.appendChild(meta2);",
+                region, placename);
     }
 
     private void ogTitle(String title) {
         getElement().executeJs(
-            "var meta = document.createElement('meta');" +
-            "meta.property = 'og:title';" +
-            "meta.content = $0;" +
-            "document.head.appendChild(meta);",
-            title
-        );
+                "var meta = document.createElement('meta');" +
+                        "meta.property = 'og:title';" +
+                        "meta.content = $0;" +
+                        "document.head.appendChild(meta);",
+                title);
     }
 
     private void ogType(String type) {
         getElement().executeJs(
-            "var meta = document.createElement('meta');" +
-            "meta.property = 'og:type';" +
-            "meta.content = $0;" +
-            "document.head.appendChild(meta);",
-            type
-        );
+                "var meta = document.createElement('meta');" +
+                        "meta.property = 'og:type';" +
+                        "meta.content = $0;" +
+                        "document.head.appendChild(meta);",
+                type);
     }
 
     private void ogSiteName(String name) {
         getElement().executeJs(
-            "var meta = document.createElement('meta');" +
-            "meta.property = 'og:site_name';" +
-            "meta.content = $0;" +
-            "document.head.appendChild(meta);",
-            name
-        );
+                "var meta = document.createElement('meta');" +
+                        "meta.property = 'og:site_name';" +
+                        "meta.content = $0;" +
+                        "document.head.appendChild(meta);",
+                name);
     }
 }
