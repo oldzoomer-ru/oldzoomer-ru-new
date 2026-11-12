@@ -28,7 +28,6 @@ public class MainView extends BaseView {
 
     private void buildSections(VerticalLayout container, GitHubDisplayData data) {
         addSection(container, "О себе", data.profileReadme());
-        addSection(container, "Репозитории", data.allRepos());
         addSection(container, "Активность", data.activity());
         addSection(container, "Статистика", data.stats());
     }
