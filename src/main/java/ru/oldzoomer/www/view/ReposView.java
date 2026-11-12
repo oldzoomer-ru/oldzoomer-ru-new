@@ -64,7 +64,8 @@ public class ReposView extends BaseView {
         Div reposBtn = createFilterButton(FILTER_REPOS, SECTION_REPOS_TITLE);
         Div gistsBtn = createFilterButton(FILTER_GISTS, SECTION_GISTS_TITLE);
 
-        allBtn.addClassName(BTN_CLASS + " " + BTN_ACTIVE);
+        allBtn.addClassName(BTN_CLASS);
+        allBtn.addClassName(BTN_ACTIVE);
         reposBtn.addClassName(BTN_CLASS);
         gistsBtn.addClassName(BTN_CLASS);
 
