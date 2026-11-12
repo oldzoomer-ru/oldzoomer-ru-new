@@ -24,11 +24,3 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "docker"
-
-  # NPM (frontend dependencies)
-  - package-ecosystem: "npm"
-    directory: "/src/main/frontend"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "frontend"
