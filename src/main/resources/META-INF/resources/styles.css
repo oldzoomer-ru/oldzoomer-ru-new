@@ -1,11 +1,10 @@
-@import '@vaadin/aura/aura.css';
-
 @font-face {
     font-family: 'Cantarell';
     /* Так как ttf-файл лежит в той же папке, что и этот css, пишем просто имя файла */
     src: url('fonts/Cantarell-VF.otf') format('opentype');
     font-weight: 100 900; /* Поддержка вариативного шрифта (Variable Font) */
     font-style: normal;
+    font-display: fallback;
 }
 
 /* Базовые цвета и переменные GNOME Libadwaita */
@@ -20,9 +19,9 @@ html {
     --adwaita-header-bg: #ffffff;
     
     /* Переопределяем системные переменные Vaadin */
-    --aura-background-color: var(--adwaita-bg);
-    --aura-body-text-color: var(--adwaita-text);
-    --aura-font-family: "Inter", "Cantarell", "Segoe UI", sans-serif;
+    background-color: var(--adwaita-bg);
+    color: var(--adwaita-text);
+    font-family: "Cantarell", sans-serif;
 }
 
 html[theme~="dark"] {

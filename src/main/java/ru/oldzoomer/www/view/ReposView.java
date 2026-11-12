@@ -8,23 +8,20 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 import ru.oldzoomer.www.model.GitHubData;
-import ru.oldzoomer.www.model.GitHubRepo;
-import ru.oldzoomer.www.service.GitHubDataService;
 import ru.oldzoomer.www.service.GitHubDisplayService;
 import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Route("repos")
 @PageTitle("Репозитории - Егор Гаврилов | GitHub Portfolio")
 public class ReposView extends VerticalLayout {
 
-    private final GitHubDataService gitHubService;
+    private final GitHubData gitHubData;
     private final GitHubDisplayService displayService;
 
-    public ReposView(GitHubDataService gitHubService, GitHubDisplayService displayService) {
-        this.gitHubService = gitHubService;
+    public ReposView(GitHubData gitHubData, GitHubDisplayService displayService) {
+        this.gitHubData = gitHubData;
         this.displayService = displayService;
 
         addClassName("adwaita-window");
@@ -42,13 +39,12 @@ public class ReposView extends VerticalLayout {
         add(loading);
 
         try {
-            GitHubData gitHubData = gitHubService.fetchAll();
             removeAll();
 
             GitHubDisplayData data = displayService.toDisplayData(gitHubData);
 
-            add(buildNavigation());
             add(buildHeaderBar());
+            add(buildNavigation());
             add(buildScrollableContent(data));
 
         } catch (Exception e) {
@@ -98,58 +94,7 @@ public class ReposView extends VerticalLayout {
             addSection(container, "Все репозитории", data.allRepos());
         }
 
-        // Карточки с информацией о репозиториях
-        addRepoCards(container, data);
-
         return container;
-    }
-
-    private void addRepoCards(VerticalLayout container, GitHubDisplayData data) {
-        List<GitHubRepo> repos = data.rawRepos();
-        if (repos == null || repos.isEmpty()) {
-            return;
-        }
-
-        // Группируем по языкам программирования
-        var reposByLanguage = repos.stream()
-                .filter(r -> r.language() != null && !r.language().isBlank())
-                .collect(Collectors.groupingBy(GitHubRepo::language));
-
-        for (var entry : reposByLanguage.entrySet()) {
-            String language = entry.getKey();
-            List<GitHubRepo> languageRepos = entry.getValue();
-
-            VerticalLayout langCard = new VerticalLayout();
-            langCard.addClassName("adwaita-lang-card");
-            langCard.setPadding(true);
-            langCard.setSpacing(true);
-
-            H3 langTitle = new H3(language + " (" + languageRepos.size() + ")");
-            langTitle.addClassName("adwaita-lang-title");
-            langCard.add(langTitle);
-
-            // Показываем топ-3 репозитория по языку
-            languageRepos.stream()
-                    .sorted((a, b) -> Integer.compare(b.stargazersCount(), a.stargazersCount()))
-                    .limit(3)
-                    .forEach(repo -> {
-                        HorizontalLayout repoRow = new HorizontalLayout();
-                        repoRow.addClassName("adwaita-repo-row");
-
-                        Anchor repoLink = new Anchor(repo.htmlUrl(), repo.name());
-                        repoLink.addClassName("adwaita-repo-link");
-                        repoRow.add(repoLink);
-
-                        Div stars = new Div();
-                        stars.addClassName("adwaita-repo-stars");
-                        stars.setText("⭐ " + repo.stargazersCount());
-                        repoRow.add(stars);
-
-                        langCard.add(repoRow);
-                    });
-
-            container.add(langCard);
-        }
     }
 
     private void addSection(VerticalLayout parent, String title, List<GitHubDisplayService.SectionItem> items) {

@@ -8,8 +8,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 import ru.oldzoomer.www.model.GitHubData;
-import ru.oldzoomer.www.model.GitHubGist;
-import ru.oldzoomer.www.service.GitHubDataService;
 import ru.oldzoomer.www.service.GitHubDisplayService;
 import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 
@@ -19,11 +17,11 @@ import java.util.List;
 @PageTitle("Gists - Егор Гаврилов | GitHub Portfolio")
 public class GistsView extends VerticalLayout {
 
-    private final GitHubDataService gitHubService;
+    private final GitHubData gitHubData;
     private final GitHubDisplayService displayService;
 
-    public GistsView(GitHubDataService gitHubService, GitHubDisplayService displayService) {
-        this.gitHubService = gitHubService;
+    public GistsView(GitHubData gitHubData, GitHubDisplayService displayService) {
+        this.gitHubData = gitHubData;
         this.displayService = displayService;
 
         addClassName("adwaita-window");
@@ -41,13 +39,12 @@ public class GistsView extends VerticalLayout {
         add(loading);
 
         try {
-            GitHubData gitHubData = gitHubService.fetchAll();
             removeAll();
 
             GitHubDisplayData data = displayService.toDisplayData(gitHubData);
 
-            add(buildNavigation());
             add(buildHeaderBar());
+            add(buildNavigation());
             add(buildScrollableContent(data));
 
         } catch (Exception e) {
@@ -96,61 +93,7 @@ public class GistsView extends VerticalLayout {
             addSection(container, "Все Gists", data.gists());
         }
 
-        // Карточки с gists
-        addGistCards(container, data);
-
         return container;
-    }
-
-    private void addGistCards(VerticalLayout container, GitHubDisplayData data) {
-        List<GitHubGist> gists = data.rawGists();
-        if (gists == null || gists.isEmpty()) {
-            return;
-        }
-
-        for (GitHubGist gist : gists) {
-            VerticalLayout gistCard = new VerticalLayout();
-            gistCard.addClassName("adwaita-gist-card");
-            gistCard.setPadding(true);
-            gistCard.setSpacing(true);
-
-            Anchor gistLink = new Anchor(gist.htmlUrl(), "Gist: " + gist.id());
-            gistLink.addClassName("adwaita-gist-link");
-            gistCard.add(gistLink);
-
-            if (gist.description() != null && !gist.description().isBlank()) {
-                Paragraph desc = new Paragraph(gist.description());
-                desc.addClassName("adwaita-gist-description");
-                gistCard.add(desc);
-            }
-
-            HorizontalLayout meta = new HorizontalLayout();
-            meta.addClassName("adwaita-gist-meta");
-
-            Div files = new Div();
-            files.addClassName("adwaita-gist-meta-item");
-            files.setText("Файлов: " + gist.files().size());
-            meta.add(files);
-
-            Div comments = new Div();
-            comments.addClassName("adwaita-gist-meta-item");
-            comments.setText("Комментариев: " + gist.comments());
-            meta.add(comments);
-
-            gistCard.add(meta);
-
-            // Список файлов
-            if (!gist.getFileNames().isEmpty()) {
-                UnorderedList fileList = new UnorderedList();
-                fileList.addClassName("adwaita-gist-files");
-                for (String fileName : gist.getFileNames()) {
-                    fileList.add(new ListItem(fileName));
-                }
-                gistCard.add(fileList);
-            }
-
-            container.add(gistCard);
-        }
     }
 
     private void addSection(VerticalLayout parent, String title, List<GitHubDisplayService.SectionItem> items) {

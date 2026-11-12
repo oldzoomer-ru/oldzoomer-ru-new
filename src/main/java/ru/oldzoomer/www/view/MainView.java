@@ -10,7 +10,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import org.jspecify.annotations.NonNull;
 import ru.oldzoomer.www.model.GitHubData;
-import ru.oldzoomer.www.service.GitHubDataService;
 import ru.oldzoomer.www.service.GitHubDisplayService;
 import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 import ru.oldzoomer.www.service.GitHubDisplayService.SectionItem;
@@ -21,11 +20,11 @@ import java.util.List;
 @PageTitle("Егор Гаврилов - Java-разработчик | GitHub Portfolio")
 public class MainView extends VerticalLayout implements BeforeEnterObserver {
 
-    private final GitHubDataService gitHubService;
+    private final GitHubData gitHubData;
     private final GitHubDisplayService displayService;
 
-    public MainView(GitHubDataService gitHubService, GitHubDisplayService displayService) {
-        this.gitHubService = gitHubService;
+    public MainView(GitHubData gitHubData, GitHubDisplayService displayService) {
+        this.gitHubData = gitHubData;
         this.displayService = displayService;
 
         addClassName("adwaita-window");
@@ -49,13 +48,12 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
         add(loading);
 
         try {
-            GitHubData gitHubData = gitHubService.fetchAll();
             removeAll();
 
             GitHubDisplayData data = displayService.toDisplayData(gitHubData);
 
-            add(buildNavigation());
             add(buildHeaderBar(data));
+            add(buildNavigation());
             add(buildScrollableContent(data));
 
         } catch (Exception e) {
@@ -134,7 +132,6 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
     private void buildSections(VerticalLayout container, GitHubDisplayData data) {
         addSection(container, "О себе", data.profileReadme());
         addSection(container, "Репозитории", data.allRepos());
-        addSection(container, "Gists", data.gists());
         addSection(container, "Активность", data.activity());
         addSection(container, "Статистика", data.stats());
     }
@@ -186,9 +183,16 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
         }
 
         if (!item.description().isBlank()) {
-            Paragraph desc = new Paragraph(item.description());
-            desc.addClassName("adwaita-row-description");
-            rowContent.add(desc);
+            if (item.isHtml()) {
+                Div desc = new Div();
+                desc.addClassName("adwaita-row-description");
+                desc.getElement().setProperty("innerHTML", item.description());
+                rowContent.add(desc);
+            } else {
+                Paragraph desc = new Paragraph(item.description());
+                desc.addClassName("adwaita-row-description");
+                rowContent.add(desc);
+            }
         }
 
         if (item.highlights() != null && !item.highlights().isEmpty()) {

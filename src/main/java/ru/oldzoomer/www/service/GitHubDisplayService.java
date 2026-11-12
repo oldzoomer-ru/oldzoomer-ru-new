@@ -1,5 +1,7 @@
 package ru.oldzoomer.www.service;
 
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.stereotype.Service;
 import ru.oldzoomer.www.model.*;
 
@@ -11,7 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Сервис для подготовки данных GitHub к отображению в UI.
@@ -81,22 +84,43 @@ public class GitHubDisplayService {
 
     // ─── Profile README ──────────────────────────────────────────────────────
 
+    private static final Parser markdownParser;
+    private static final HtmlRenderer markdownRenderer;
+    static {
+        markdownParser = Parser.builder().build();
+        markdownRenderer = HtmlRenderer.builder().build();
+    }
+
     private List<SectionItem> formatProfileReadme(String readme) {
         if (readme == null || readme.isBlank()) {
             return List.of();
         }
 
-        // Парсим markdown: первая строка как заголовок, остальное как описание
-        String[] lines = readme.split("\n", 3);
-        String title = lines.length > 0 ? lines[0].replaceAll("^#+\\s*", "").trim() : "README";
-        String description = lines.length > 2 ? lines[2].trim() : (lines.length > 1 ? lines[1].trim() : "");
+        // Конвертируем markdown в HTML
+        String html = markdownRenderer.render(markdownParser.parse(readme));
+        // Убираем <p> и </p> обёртки для чистого контента
+        html = html.replaceAll("^<p>", "").replaceAll("</p>$", "");
 
-        return List.of(SectionItem.of(
+        // Первая строка как заголовок
+        String title = extractFirstHeading(readme);
+
+        return List.of(new SectionItem(
                 title,
                 "",
-                truncate(description, 500),
-                List.of()
+                html,
+                List.of(),
+                null,
+                true
         ));
+    }
+
+    private String extractFirstHeading(String readme) {
+        Pattern pattern = Pattern.compile("^#{1,6}\\s+(.+)$", Pattern.MULTILINE);
+        Matcher matcher = pattern.matcher(readme);
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+        return "README";
     }
 
     // ─── All Repositories ────────────────────────────────────────────────────
@@ -110,7 +134,7 @@ public class GitHubDisplayService {
                 .filter(r -> !r.isFork())
                 .sorted((a, b) -> {
                     int cmp = Integer.compare(b.stargazersCount(), a.stargazersCount());
-                    return cmp != 0 ? cmp : b.updatedAt().compareTo(a.updatedAt());
+                    return cmp == 0 ? b.updatedAt().compareTo(a.updatedAt()) : cmp;
                 })
                 .limit(20)
                 .map(r -> {
@@ -119,7 +143,7 @@ public class GitHubDisplayService {
                     List<String> highlights = List.of(
                             starCount(r.stargazersCount()),
                             language(r.language())
-                    ).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
+                    ).stream().filter(s -> !s.isEmpty()).toList();
 
                     return SectionItem.of(r.name(), subtitle, desc, highlights)
                             .withUrl(r.htmlUrl());
@@ -177,7 +201,7 @@ public class GitHubDisplayService {
                 });
 
         // Созданные репозитории
-        activity.recentRepos().stream()
+        activity.recentRepos()
                 .forEach(r -> {
                     String subtitle = language(r.language());
                     String desc = "Создан: " + formatDate(r.updatedAt());
@@ -226,10 +250,6 @@ public class GitHubDisplayService {
         return count > 0 ? "⭐ " + count : "";
     }
 
-    private String forkCount(int count) {
-        return count > 0 ? "🍴 " + count : "";
-    }
-
     private String language(String lang) {
         return lang != null && !lang.isBlank() ? lang : "";
     }
@@ -247,14 +267,9 @@ public class GitHubDisplayService {
         try {
             Instant instant = Instant.parse(isoDate);
             return instant.atZone(UTC).format(DATE_FMT);
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException _) {
             return isoDate;
         }
-    }
-
-    private String truncate(String text, int maxLen) {
-        if (text == null) return "";
-        return text.length() <= maxLen ? text : text.substring(0, maxLen) + "…";
     }
 
     // ─── Display Data Record ─────────────────────────────────────────────────
@@ -290,7 +305,8 @@ public class GitHubDisplayService {
             String subtitle,
             String description,
             List<String> highlights,
-            String url
+            String url,
+            boolean isHtml
     ) {
         public static SectionItem of(String title, String subtitle, String description, List<String> highlights) {
             return new SectionItem(
@@ -298,12 +314,13 @@ public class GitHubDisplayService {
                     subtitle != null ? subtitle : "",
                     description != null ? description : "",
                     highlights != null ? highlights : List.of(),
-                    null
+                    null,
+                    false
             );
         }
 
         public SectionItem withUrl(String url) {
-            return new SectionItem(title, subtitle, description, highlights, url);
+            return new SectionItem(title, subtitle, description, highlights, url, isHtml);
         }
     }
 }

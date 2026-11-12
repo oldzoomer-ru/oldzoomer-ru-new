@@ -10,7 +10,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import ru.oldzoomer.www.model.GitHubActivity;
 import ru.oldzoomer.www.model.GitHubCommit;
-import ru.oldzoomer.www.model.GitHubData;
 import ru.oldzoomer.www.model.GitHubGist;
 import ru.oldzoomer.www.model.GitHubProfile;
 import ru.oldzoomer.www.model.GitHubRepo;
@@ -57,20 +56,6 @@ public class GitHubDataService {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
-    }
-
-    /**
-     * Получает все данные GitHub для текущего пользователя.
-     * Использует Spring Cache для уменьшения количества запросов к API.
-     */
-    public GitHubData fetchAll() {
-        GitHubProfile profile = fetchProfile();
-        String profileReadme = fetchProfileReadme();
-        List<GitHubRepo> allRepos = fetchAllRepos();
-        List<GitHubGist> gists = fetchGists();
-        GitHubActivity activity = fetchActivity();
-
-        return new GitHubData(profile, profileReadme, allRepos, gists, activity);
     }
 
     // ─── Profile ───────────────────────────────────────────────────────────────
@@ -142,6 +127,7 @@ public class GitHubDataService {
         List<GitHubCommit> commits = events.stream()
                 .filter(e -> "PushEvent".equals(e.get("type")))
                 .map(this::extractCommit)
+                .filter(c -> c != null)
                 .limit(10)
                 .toList();
 

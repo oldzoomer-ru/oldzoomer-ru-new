@@ -8,8 +8,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 import ru.oldzoomer.www.model.GitHubData;
-import ru.oldzoomer.www.model.GitHubProfile;
-import ru.oldzoomer.www.service.GitHubDataService;
 import ru.oldzoomer.www.service.GitHubDisplayService;
 import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 import ru.oldzoomer.www.service.GitHubDisplayService.SectionItem;
@@ -20,11 +18,11 @@ import java.util.List;
 @PageTitle("Статистика - Егор Гаврилов | GitHub Portfolio")
 public class StatsView extends VerticalLayout {
 
-    private final GitHubDataService gitHubService;
+    private final GitHubData gitHubData;
     private final GitHubDisplayService displayService;
 
-    public StatsView(GitHubDataService gitHubService, GitHubDisplayService displayService) {
-        this.gitHubService = gitHubService;
+    public StatsView(GitHubData gitHubData, GitHubDisplayService displayService) {
+        this.gitHubData = gitHubData;
         this.displayService = displayService;
 
         addClassName("adwaita-window");
@@ -42,13 +40,12 @@ public class StatsView extends VerticalLayout {
         add(loading);
 
         try {
-            GitHubData gitHubData = gitHubService.fetchAll();
             removeAll();
 
             GitHubDisplayData data = displayService.toDisplayData(gitHubData);
 
-            add(buildNavigation());
             add(buildHeaderBar(data));
+            add(buildNavigation());
             add(buildScrollableContent(data));
 
         } catch (Exception e) {
@@ -97,57 +94,7 @@ public class StatsView extends VerticalLayout {
             addSection(container, "Общая статистика", data.stats());
         }
 
-        // Добавляем карточки с ключевыми метриками
-        addMetricsCards(container, data);
-
         return container;
-    }
-
-    private void addMetricsCards(VerticalLayout container, GitHubDisplayData data) {
-        GitHubProfile profile = data.profile();
-        if (profile == null) return;
-
-        VerticalLayout metricsCard = new VerticalLayout();
-        metricsCard.addClassName("adwaita-metrics-card");
-        metricsCard.setPadding(false);
-        metricsCard.setSpacing(true);
-
-        HorizontalLayout row1 = new HorizontalLayout();
-        row1.addClassName("adwaita-metrics-row");
-
-        row1.add(createMetricCard("Репозитории", String.valueOf(profile.publicRepos())));
-        row1.add(createMetricCard("Звёзды", String.valueOf(profile.followers() * 10 + profile.publicRepos())));
-        row1.add(createMetricCard("Подписчики", String.valueOf(profile.followers())));
-
-        metricsCard.add(row1);
-
-        HorizontalLayout row2 = new HorizontalLayout();
-        row2.addClassName("adwaita-metrics-row");
-
-        row2.add(createMetricCard("Gists", String.valueOf(profile.publicGists())));
-        row2.add(createMetricCard("Подписки", String.valueOf(profile.following())));
-
-        metricsCard.add(row2);
-
-        container.add(metricsCard);
-    }
-
-    private VerticalLayout createMetricCard(String label, String value) {
-        VerticalLayout card = new VerticalLayout();
-        card.addClassName("adwaita-metric");
-        card.setPadding(true);
-        card.setSpacing(true);
-        card.setWidthFull();
-
-        H2 metricValue = new H2(value);
-        metricValue.addClassName("adwaita-metric-value");
-        card.add(metricValue);
-
-        Paragraph metricLabel = new Paragraph(label);
-        metricLabel.addClassName("adwaita-metric-label");
-        card.add(metricLabel);
-
-        return card;
     }
 
     private void addSection(VerticalLayout parent, String title, List<SectionItem> items) {
