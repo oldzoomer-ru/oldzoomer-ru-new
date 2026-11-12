@@ -14,7 +14,7 @@ import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 import java.util.List;
 
 @Route("repos")
-@PageTitle("Репозитории - Егор Гаврилов | GitHub Portfolio")
+@PageTitle("Репозитории - Егор Гаврилов")
 public class ReposView extends VerticalLayout {
 
     private final GitHubData gitHubData;

@@ -14,7 +14,7 @@ import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 import java.util.List;
 
 @Route("gists")
-@PageTitle("Gists - Егор Гаврилов | GitHub Portfolio")
+@PageTitle("Gists - Егор Гаврилов")
 public class GistsView extends VerticalLayout {
 
     private final GitHubData gitHubData;

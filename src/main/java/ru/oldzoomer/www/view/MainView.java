@@ -17,7 +17,7 @@ import ru.oldzoomer.www.service.GitHubDisplayService.SectionItem;
 import java.util.List;
 
 @Route("")
-@PageTitle("Егор Гаврилов - Java-разработчик | GitHub Portfolio")
+@PageTitle("Егор Гаврилов - Java-разработчик")
 public class MainView extends VerticalLayout implements BeforeEnterObserver {
 
     private final GitHubData gitHubData;
