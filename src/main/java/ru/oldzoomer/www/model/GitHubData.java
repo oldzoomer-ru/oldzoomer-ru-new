@@ -11,13 +11,11 @@ import java.util.List;
 public record GitHubData(
     GitHubProfile profile,
     String profileReadme,
-    List<GitHubRepo> pinnedRepos,
     List<GitHubRepo> allRepos,
     List<GitHubGist> gists,
     GitHubActivity activity
 ) {
     public GitHubData {
-        if (pinnedRepos == null) pinnedRepos = Collections.emptyList();
         if (allRepos == null) allRepos = Collections.emptyList();
         if (gists == null) gists = Collections.emptyList();
     }
@@ -25,11 +23,10 @@ public record GitHubData(
     public static GitHubData of(
         GitHubProfile profile,
         String profileReadme,
-        List<GitHubRepo> pinnedRepos,
         List<GitHubRepo> allRepos,
         List<GitHubGist> gists,
         GitHubActivity activity
     ) {
-        return new GitHubData(profile, profileReadme, pinnedRepos, allRepos, gists, activity);
+        return new GitHubData(profile, profileReadme, allRepos, gists, activity);
     }
 }

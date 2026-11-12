@@ -133,7 +133,6 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
 
     private void buildSections(VerticalLayout container, GitHubDisplayData data) {
         addSection(container, "О себе", data.profileReadme());
-        addSection(container, "Закреплённые репозитории", data.pinnedRepos());
         addSection(container, "Репозитории", data.allRepos());
         addSection(container, "Gists", data.gists());
         addSection(container, "Активность", data.activity());

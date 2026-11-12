@@ -47,7 +47,6 @@ public class GitHubDisplayService {
                 bio,
                 contactInfo,
                 formatProfileReadme(data.profileReadme()),
-                formatPinnedRepos(data.pinnedRepos()),
                 formatAllRepos(data.allRepos()),
                 formatGists(data.gists()),
                 formatActivity(data.activity()),
@@ -98,29 +97,6 @@ public class GitHubDisplayService {
                 truncate(description, 500),
                 List.of()
         ));
-    }
-
-    // ─── Pinned Repositories ─────────────────────────────────────────────────
-
-    private List<SectionItem> formatPinnedRepos(List<GitHubRepo> repos) {
-        if (repos == null || repos.isEmpty()) {
-            return List.of();
-        }
-
-        return repos.stream()
-                .map(r -> {
-                    String subtitle = buildRepoSubtitle(r);
-                    String desc = Optional.ofNullable(r.description()).orElse("");
-                    List<String> highlights = List.of(
-                            starCount(r.stargazersCount()),
-                            forkCount(r.forksCount()),
-                            language(r.language())
-                    ).stream().filter(s -> !s.isEmpty()).toList();
-
-                    return SectionItem.of(r.name(), subtitle, desc, highlights)
-                            .withUrl(r.htmlUrl());
-                })
-                .toList();
     }
 
     // ─── All Repositories ────────────────────────────────────────────────────
@@ -288,7 +264,6 @@ public class GitHubDisplayService {
             String bio,
             String contactInfo,
             List<SectionItem> profileReadme,
-            List<SectionItem> pinnedRepos,
             List<SectionItem> allRepos,
             List<SectionItem> gists,
             List<SectionItem> activity,
@@ -303,7 +278,6 @@ public class GitHubDisplayService {
             if (bio == null) bio = "";
             if (contactInfo == null) contactInfo = "";
             if (profileReadme == null) profileReadme = List.of();
-            if (pinnedRepos == null) pinnedRepos = List.of();
             if (allRepos == null) allRepos = List.of();
             if (gists == null) gists = List.of();
             if (activity == null) activity = List.of();

@@ -93,11 +93,6 @@ public class ReposView extends VerticalLayout {
         VerticalLayout container = new VerticalLayout();
         container.addClassName("adwaita-content-container");
 
-        // Закреплённые репозитории
-        if (!data.pinnedRepos().isEmpty()) {
-            addSection(container, "Закреплённые репозитории", data.pinnedRepos());
-        }
-
         // Все репозитории
         if (!data.allRepos().isEmpty()) {
             addSection(container, "Все репозитории", data.allRepos());

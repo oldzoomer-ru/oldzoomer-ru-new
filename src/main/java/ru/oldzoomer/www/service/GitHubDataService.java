@@ -66,12 +66,11 @@ public class GitHubDataService {
     public GitHubData fetchAll() {
         GitHubProfile profile = fetchProfile();
         String profileReadme = fetchProfileReadme();
-        List<GitHubRepo> pinnedRepos = fetchPinnedRepos();
         List<GitHubRepo> allRepos = fetchAllRepos();
         List<GitHubGist> gists = fetchGists();
         GitHubActivity activity = fetchActivity();
 
-        return new GitHubData(profile, profileReadme, pinnedRepos, allRepos, gists, activity);
+        return new GitHubData(profile, profileReadme, allRepos, gists, activity);
     }
 
     // ─── Profile ───────────────────────────────────────────────────────────────
@@ -102,23 +101,9 @@ public class GitHubDataService {
         String encoding = (String) map.get("encoding");
 
         if (content != null && "base64".equals(encoding)) {
-            return new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
+            return new String(Base64.getMimeDecoder().decode(content), StandardCharsets.UTF_8);
         }
         return content != null ? content : "";
-    }
-
-    // ─── Pinned Repositories ───────────────────────────────────────────────────
-
-    @Cacheable("pinned")
-    public List<GitHubRepo> fetchPinnedRepos() {
-        // GitHub не предоставляет pinned repos через публичный API.
-        // Используем starred repos как fallback.
-        log.info("Pinned repos недоступны через API, используем starred repos для {}", githubUsername);
-        return fetchAllRepos().stream()
-                .filter(r -> !r.isFork())
-                .sorted((a, b) -> Integer.compare(b.stargazersCount(), a.stargazersCount()))
-                .limit(6)
-                .toList();
     }
 
     // ─── All Repositories ──────────────────────────────────────────────────────
