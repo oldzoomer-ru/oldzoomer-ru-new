@@ -1,164 +1,164 @@
 package ru.oldzoomer.www.view;
 
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-
 import ru.oldzoomer.www.model.GitHubData;
 import ru.oldzoomer.www.service.GitHubDisplayService;
-import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Route("repos")
 @PageTitle("Репозитории - Егор Гаврилов")
-public class ReposView extends VerticalLayout {
+@SuppressWarnings("this-escape")
+public class ReposView extends BaseView {
 
-    private final GitHubData gitHubData;
-    private final GitHubDisplayService displayService;
+    private static final String FILTER_ALL = "all";
+    private static final String FILTER_REPOS = "repos";
+    private static final String FILTER_GISTS = "gists";
+    private static final String BTN_CLASS = "filter-btn";
+    private static final String BTN_ACTIVE = "active";
+    private static final String SECTION_REPOS_TITLE = "Репозитории";
+    private static final String SECTION_GISTS_TITLE = "Gists";
 
     public ReposView(GitHubData gitHubData, GitHubDisplayService displayService) {
-        this.gitHubData = gitHubData;
-        this.displayService = displayService;
-
-        addClassName("adwaita-window");
-        setSizeFull();
-        setPadding(false);
-        setSpacing(false);
-
+        init(gitHubData, displayService);
+        setupUI();
         loadRepos();
     }
 
     private void loadRepos() {
-        Div loading = new Div();
-        loading.setText("Загрузка репозиториев...");
-        loading.addClassName("loading");
-        add(loading);
+        loadData("Загрузка репозиториев...", data -> {
+            VerticalLayout container = buildScrollableContent(data);
 
-        try {
-            removeAll();
+            HorizontalLayout filterPanel = buildFilterPanel();
+            container.add(filterPanel);
 
-            GitHubDisplayData data = displayService.toDisplayData(gitHubData);
+            addSection(container, SECTION_REPOS_TITLE, data.allRepos());
+            addSection(container, SECTION_GISTS_TITLE, data.gists());
 
-            add(buildHeaderBar());
-            add(buildNavigation());
-            add(buildScrollableContent(data));
-
-        } catch (Exception e) {
-            removeAll();
-            Div error = new Div();
-            error.setText("Ошибка: " + e.getMessage());
-            error.addClassName("error");
-            add(error);
-        }
+            return container;
+        });
     }
 
-    private HorizontalLayout buildNavigation() {
-        HorizontalLayout nav = new HorizontalLayout();
-        nav.addClassName("adwaita-navigation");
-        nav.setWidthFull();
+    private HorizontalLayout buildFilterPanel() {
+        HorizontalLayout panel = new HorizontalLayout();
+        panel.addClassName("adwaita-filter-panel");
+        panel.setPadding(false);
+        panel.setSpacing(false);
 
-        RouterLink mainLink = new RouterLink("Главная", MainView.class);
-        RouterLink statsLink = new RouterLink("Статистика", StatsView.class);
-        RouterLink gistsLink = new RouterLink("Gists", GistsView.class);
+        TextField searchField = new TextField();
+        searchField.setPlaceholder("Поиск по названию или описанию...");
+        searchField.addClassName("adwaita-search-field");
+        searchField.setWidthFull();
+        searchField.setClearButtonVisible(true);
+        searchField.addValueChangeListener(e -> filterContent(e.getValue()));
 
-        mainLink.addClassName("nav-link");
-        statsLink.addClassName("nav-link");
-        gistsLink.addClassName("nav-link");
+        Div allBtn = createFilterButton(FILTER_ALL, "Все");
+        Div reposBtn = createFilterButton(FILTER_REPOS, SECTION_REPOS_TITLE);
+        Div gistsBtn = createFilterButton(FILTER_GISTS, SECTION_GISTS_TITLE);
 
-        nav.add(mainLink, statsLink, gistsLink);
-        return nav;
+        allBtn.addClassName(BTN_CLASS + " " + BTN_ACTIVE);
+        reposBtn.addClassName(BTN_CLASS);
+        gistsBtn.addClassName(BTN_CLASS);
+
+        addClickHandler(allBtn, FILTER_ALL, allBtn, reposBtn, gistsBtn);
+        addClickHandler(reposBtn, FILTER_REPOS, allBtn, reposBtn, gistsBtn);
+        addClickHandler(gistsBtn, FILTER_GISTS, allBtn, reposBtn, gistsBtn);
+
+        panel.add(searchField, allBtn, reposBtn, gistsBtn);
+        return panel;
     }
 
-    private HorizontalLayout buildHeaderBar() {
-        HorizontalLayout headerBar = new HorizontalLayout();
-        headerBar.addClassName("adwaita-header-bar");
-        headerBar.setWidthFull();
-
-        H1 windowTitle = new H1("Репозитории");
-        windowTitle.addClassName("adwaita-window-title");
-        headerBar.add(windowTitle);
-
-        return headerBar;
+    private Div createFilterButton(String filterType, String text) {
+        Div btn = new Div();
+        btn.setText(text);
+        btn.addClassName(BTN_CLASS);
+        btn.getElement().executeJs("this.style.cursor='pointer'");
+        btn.getElement().setAttribute("data-filter", filterType);
+        return btn;
     }
 
-    private VerticalLayout buildScrollableContent(GitHubDisplayData data) {
-        VerticalLayout container = new VerticalLayout();
-        container.addClassName("adwaita-content-container");
-
-        // Все репозитории
-        if (!data.allRepos().isEmpty()) {
-            addSection(container, "Все репозитории", data.allRepos());
-        }
-
-        return container;
-    }
-
-    private void addSection(VerticalLayout parent, String title, List<GitHubDisplayService.SectionItem> items) {
-        if (items == null || items.isEmpty()) {
-            return;
-        }
-
-        VerticalLayout sectionGroup = new VerticalLayout();
-        sectionGroup.addClassName("adwaita-pref-group");
-        sectionGroup.setPadding(false);
-        sectionGroup.setSpacing(false);
-
-        H2 sectionTitle = new H2(title);
-        sectionTitle.addClassName("adwaita-pref-group-title");
-        sectionGroup.add(sectionTitle);
-
-        VerticalLayout card = new VerticalLayout();
-        card.addClassName("adwaita-card");
-        card.setPadding(false);
-        card.setSpacing(false);
-
-        for (GitHubDisplayService.SectionItem item : items) {
-            card.add(buildSectionItem(item));
-        }
-
-        sectionGroup.add(card);
-        parent.add(sectionGroup);
-    }
-
-    private Div buildSectionItem(GitHubDisplayService.SectionItem item) {
-        Div row = new Div();
-        row.addClassName("adwaita-row");
-
-        VerticalLayout rowContent = new VerticalLayout();
-        rowContent.addClassName("adwaita-row-content");
-        rowContent.setPadding(false);
-        rowContent.setSpacing(false);
-
-        H3 entryTitle = new H3(item.title());
-        entryTitle.addClassName("adwaita-row-title");
-        rowContent.add(entryTitle);
-
-        if (!item.subtitle().isBlank()) {
-            Paragraph subtitle = new Paragraph(item.subtitle());
-            subtitle.addClassName("adwaita-row-subtitle");
-            rowContent.add(subtitle);
-        }
-
-        if (!item.description().isBlank()) {
-            Paragraph desc = new Paragraph(item.description());
-            desc.addClassName("adwaita-row-description");
-            rowContent.add(desc);
-        }
-
-        if (item.highlights() != null && !item.highlights().isEmpty()) {
-            UnorderedList list = new UnorderedList();
-            list.addClassName("adwaita-row-highlights");
-            for (String h : item.highlights()) {
-                list.add(new ListItem(h));
+    private void addClickHandler(Div btn, String filterType, Div... buttons) {
+        btn.getElement().addEventListener("click").listener(e -> {
+            for (Div b : buttons) {
+                b.getClassNames().remove(BTN_ACTIVE);
             }
-            rowContent.add(list);
+            btn.getClassNames().add(BTN_ACTIVE);
+            filterSectionsByType(filterType);
+        });
+    }
+
+    private void filterSectionsByType(String filterType) {
+        for (Component child : getContentComponents()) {
+            if (child instanceof VerticalLayout section) {
+                String title = getSectionTitle(section);
+                boolean visible = switch (filterType) {
+                    case FILTER_ALL -> true;
+                    case FILTER_REPOS -> SECTION_REPOS_TITLE.equals(title);
+                    case FILTER_GISTS -> SECTION_GISTS_TITLE.equals(title);
+                    default -> true;
+                };
+                section.setVisible(visible);
+            }
+        }
+    }
+
+    private String getSectionTitle(VerticalLayout section) {
+        for (Component item : section) {
+            if (item instanceof H2 h2) {
+                return h2.getText();
+            }
+        }
+        return "";
+    }
+
+    private void filterContent(String query) {
+        String lowerQuery = query.toLowerCase().trim();
+
+        for (Component child : getContentComponents()) {
+            if (child instanceof VerticalLayout section && section.isVisible()) {
+                filterSection(section, lowerQuery);
+            }
+        }
+    }
+
+    private void filterSection(VerticalLayout section, String query) {
+        boolean anyVisible = false;
+
+        for (Component item : section) {
+            if (item instanceof VerticalLayout card && card.hasStyleName("adwaita-card")) {
+                boolean cardVisible = query.isEmpty() || isCardMatch(card, query);
+                card.setVisible(cardVisible);
+                if (cardVisible) anyVisible = true;
+            }
         }
 
-        row.add(rowContent);
-        return row;
+        section.setVisible(anyVisible || query.isEmpty());
+    }
+
+    private boolean isCardMatch(VerticalLayout card, String query) {
+        for (Component row : card) {
+            if (row instanceof Div rowDiv && rowDiv.getText().toLowerCase().contains(query)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Component> getContentComponents() {
+        List<Component> components = new ArrayList<>();
+        for (Component c : this) {
+            if (!(c instanceof HorizontalLayout)) {
+                components.add(c);
+            }
+        }
+        return components;
     }
 }

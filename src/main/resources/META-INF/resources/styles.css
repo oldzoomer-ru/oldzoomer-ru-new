@@ -94,6 +94,42 @@ html[theme~="dark"] {
     line-height: 1.5;
 }
 
+/* Панель фильтрации и поиска */
+.adwaita-filter-panel {
+    margin-bottom: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.adwaita-search-field {
+    flex: 1 1 300px;
+}
+
+.filter-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--adwaita-card-border);
+    background-color: var(--adwaita-card-bg);
+    color: var(--adwaita-text);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.filter-btn:hover {
+    border-color: var(--adwaita-accent);
+    color: var(--adwaita-accent);
+}
+
+.filter-btn.active {
+    background-color: var(--adwaita-accent);
+    color: #ffffff;
+    border-color: var(--adwaita-accent);
+}
+
 /* Группа настроек (Секция) */
 .adwaita-pref-group {
     margin-bottom: 24px;

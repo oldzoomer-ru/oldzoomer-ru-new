@@ -34,7 +34,7 @@ public class GitHubDisplayService {
      * Форматирует GitHubData для отображения.
      */
     public GitHubDisplayData toDisplayData(GitHubData data) {
-        var profile = data.profile();
+        GitHubProfile profile = data.profile();
         String fullName = Optional.ofNullable(profile.name())
                 .filter(n -> !n.isBlank())
                 .orElse(Optional.ofNullable(profile.login()).orElse("GitHub пользователь"));
@@ -63,7 +63,7 @@ public class GitHubDisplayService {
     // ─── Contact Info ────────────────────────────────────────────────────────
 
     private String buildContactInfo(GitHubProfile profile) {
-        var parts = new ArrayList<String>();
+        List<String> parts = new ArrayList<>();
 
         if (profile.location() != null && !profile.location().isBlank()) {
             parts.add(profile.location());
@@ -219,7 +219,7 @@ public class GitHubDisplayService {
             return List.of();
         }
 
-        var highlights = new ArrayList<String>();
+        List<String> highlights = new ArrayList<>();
         highlights.add("Репозиториев: " + profile.publicRepos());
         highlights.add("Звёзд: " + starTotal(profile));
         highlights.add("Подписчиков: " + profile.followers());
@@ -236,7 +236,7 @@ public class GitHubDisplayService {
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
     private String buildRepoSubtitle(GitHubRepo repo) {
-        var parts = new ArrayList<String>();
+        List<String> parts = new ArrayList<>();
         if (repo.defaultBranch() != null) {
             parts.add(repo.defaultBranch());
         }
