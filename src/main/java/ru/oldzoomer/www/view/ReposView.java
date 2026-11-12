@@ -124,7 +124,7 @@ public class ReposView extends BaseView {
         String lowerQuery = query.toLowerCase().trim();
 
         for (Component child : getContentComponents()) {
-            if (child instanceof VerticalLayout section && section.isVisible()) {
+            if (child instanceof VerticalLayout section) {
                 filterSection(section, lowerQuery);
             }
         }
