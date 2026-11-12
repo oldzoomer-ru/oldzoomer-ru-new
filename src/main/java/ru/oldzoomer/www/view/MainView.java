@@ -3,64 +3,62 @@ package ru.oldzoomer.www.view;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 import org.jspecify.annotations.NonNull;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
-import ru.oldzoomer.www.model.Resume;
-import ru.oldzoomer.www.service.ResumeDisplayService;
-import ru.oldzoomer.www.service.ResumeDisplayService.ResumeDisplayData;
-import ru.oldzoomer.www.service.ResumeDisplayService.SectionItem;
-import ru.oldzoomer.www.service.ResumeParserService;
-import ru.oldzoomer.www.service.ResumeParserService.ResumeFetchException;
-import ru.oldzoomer.www.service.ResumeParserService.ResumeParseException;
+import ru.oldzoomer.www.model.GitHubData;
+import ru.oldzoomer.www.service.GitHubDataService;
+import ru.oldzoomer.www.service.GitHubDisplayService;
+import ru.oldzoomer.www.service.GitHubDisplayService.GitHubDisplayData;
+import ru.oldzoomer.www.service.GitHubDisplayService.SectionItem;
 
 import java.util.List;
 
 @Route("")
-@RegisterReflectionForBinding(Resume.class)
-public class MainView extends VerticalLayout {
+@PageTitle("Егор Гаврилов - Java-разработчик | GitHub Portfolio")
+public class MainView extends VerticalLayout implements BeforeEnterObserver {
 
-    private final ResumeParserService parserService;
-    private final ResumeDisplayService displayService;
+    private final GitHubDataService gitHubService;
+    private final GitHubDisplayService displayService;
 
-    public MainView(ResumeParserService parserService, ResumeDisplayService displayService) {
-        this.parserService = parserService;
+    public MainView(GitHubDataService gitHubService, GitHubDisplayService displayService) {
+        this.gitHubService = gitHubService;
         this.displayService = displayService;
 
-        // В Libadwaita контент центрируется и имеет строго ограниченную ширину
         addClassName("adwaita-window");
         setSizeFull();
         setPadding(false);
         setSpacing(false);
 
-        loadResume();
+        loadGitHubData();
     }
 
-    private void loadResume() {
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        // SEO: Устанавливаем мета-данные при входе на страницу
+        applySeoMeta();
+    }
+
+    private void loadGitHubData() {
         Div loading = new Div();
-        loading.setText("Загрузка резюме...");
+        loading.setText("Загрузка данных GitHub...");
         loading.addClassName("loading");
         add(loading);
 
         try {
-            Resume resume = parserService.fetchAndParse();
+            GitHubData gitHubData = gitHubService.fetchAll();
             removeAll();
 
-            List<String> issues = parserService.validate(resume);
-            if (!issues.isEmpty()) {
-                Div warning = new Div();
-                warning.setText(String.join(" | ", issues));
-                warning.addClassName("warning");
-                add(warning);
-            }
+            GitHubDisplayData data = displayService.toDisplayData(gitHubData);
 
-            ResumeDisplayData data = displayService.toDisplayData(resume);
-
-            // Имитация окна GNOME: Сверху HeaderBar, снизу прокручиваемый контент
+            add(buildNavigation());
             add(buildHeaderBar(data));
             add(buildScrollableContent(data));
 
-        } catch (ResumeFetchException | ResumeParseException e) {
+        } catch (Exception e) {
             removeAll();
             Div error = new Div();
             error.setText("Ошибка: " + e.getMessage());
@@ -69,20 +67,32 @@ public class MainView extends VerticalLayout {
         }
     }
 
-    /**
-     * Вместо простого заголовка строим нативный Libadwaita HeaderBar
-     */
-    private HorizontalLayout buildHeaderBar(ResumeDisplayData data) {
+    private HorizontalLayout buildNavigation() {
+        HorizontalLayout nav = new HorizontalLayout();
+        nav.addClassName("adwaita-navigation");
+        nav.setWidthFull();
+
+        RouterLink statsLink = new RouterLink("Статистика", StatsView.class);
+        RouterLink reposLink = new RouterLink("Репозитории", ReposView.class);
+        RouterLink gistsLink = new RouterLink("Gists", GistsView.class);
+
+        statsLink.addClassName("nav-link");
+        reposLink.addClassName("nav-link");
+        gistsLink.addClassName("nav-link");
+
+        nav.add(statsLink, reposLink, gistsLink);
+        return nav;
+    }
+
+    private HorizontalLayout buildHeaderBar(GitHubDisplayData data) {
         HorizontalLayout headerBar = new HorizontalLayout();
         headerBar.addClassName("adwaita-header-bar");
         headerBar.setWidthFull();
 
-        // Заголовок окна (ФИО)
         H1 windowTitle = new H1(data.fullName());
         windowTitle.addClassName("adwaita-window-title");
         headerBar.add(windowTitle);
 
-        // Имитация кнопок управления окном GNOME (Закрыть/Развернуть) для аутентичности
         Div windowControls = new Div();
         windowControls.addClassName("adwaita-window-controls");
         headerBar.add(windowControls);
@@ -90,26 +100,21 @@ public class MainView extends VerticalLayout {
         return headerBar;
     }
 
-    /**
-     * Прокручиваемая область под HeaderBar
-     */
-    private VerticalLayout buildScrollableContent(ResumeDisplayData data) {
+    private VerticalLayout buildScrollableContent(GitHubDisplayData data) {
         VerticalLayout container = new VerticalLayout();
         container.addClassName("adwaita-content-container");
 
-        // Краткие контакты и summary сверху
-        if (!data.contactInfo().isBlank() || !data.summary().isBlank()) {
+        if (!data.contactInfo().isBlank() || !data.bio().isBlank()) {
             Div subHeader = createSubHeader(data);
             container.add(subHeader);
         }
 
-        // Рендерим секции
         buildSections(container, data);
 
         return container;
     }
 
-    private static @NonNull Div createSubHeader(ResumeDisplayData data) {
+    private static @NonNull Div createSubHeader(GitHubDisplayData data) {
         Div subHeader = new Div();
         subHeader.addClassName("adwaita-sub-header");
 
@@ -118,29 +123,23 @@ public class MainView extends VerticalLayout {
             contacts.addClassName("adwaita-contacts");
             subHeader.add(contacts);
         }
-        if (!data.summary().isBlank()) {
-            Paragraph summary = new Paragraph(data.summary());
-            summary.addClassName("adwaita-summary");
-            subHeader.add(summary);
+        if (!data.bio().isBlank()) {
+            Paragraph bio = new Paragraph(data.bio());
+            bio.addClassName("adwaita-bio");
+            subHeader.add(bio);
         }
         return subHeader;
     }
 
-    private void buildSections(VerticalLayout container, ResumeDisplayData data) {
-        addSection(container, "Опыт работы", data.workExperience());
-        addSection(container, "Волонтёрство", data.volunteer());
-        addSection(container, "Образование", data.education());
-        addSection(container, "Навыки", data.skills());
-        addSection(container, "Сертификаты", data.certifications());
-        addSection(container, "Проекты", data.projects());
-        addSection(container, "Языки", data.languages());
-        addSection(container, "Награды", data.awards());
-        addSection(container, "Рекомендации", data.references());
+    private void buildSections(VerticalLayout container, GitHubDisplayData data) {
+        addSection(container, "О себе", data.profileReadme());
+        addSection(container, "Закреплённые репозитории", data.pinnedRepos());
+        addSection(container, "Репозитории", data.allRepos());
+        addSection(container, "Gists", data.gists());
+        addSection(container, "Активность", data.activity());
+        addSection(container, "Статистика", data.stats());
     }
 
-    /**
-     * Создает секцию в виде Adwaita Preferences Group (Заголовок + Карточка со строками)
-     */
     private void addSection(VerticalLayout parent, String title, List<SectionItem> items) {
         if (items == null || items.isEmpty()) {
             return;
@@ -151,12 +150,10 @@ public class MainView extends VerticalLayout {
         sectionGroup.setPadding(false);
         sectionGroup.setSpacing(false);
 
-        // Заголовок группы (маленький, серый, чуть левее карточки)
         H2 sectionTitle = new H2(title);
         sectionTitle.addClassName("adwaita-pref-group-title");
         sectionGroup.add(sectionTitle);
 
-        // Карточка-контейнер (GtkListBox с рамкой и скруглением)
         VerticalLayout card = new VerticalLayout();
         card.addClassName("adwaita-card");
         card.setPadding(false);
@@ -170,14 +167,10 @@ public class MainView extends VerticalLayout {
         parent.add(sectionGroup);
     }
 
-    /**
-     * Индивидуальная строка внутри карточки (Adwaita List Row)
-     */
     private Div buildSectionItem(SectionItem item) {
         Div row = new Div();
         row.addClassName("adwaita-row");
 
-        // Мета-информация (Период/Компания) сдвигается вправо или наверх неброским шрифтом
         VerticalLayout rowContent = new VerticalLayout();
         rowContent.addClassName("adwaita-row-content");
         rowContent.setPadding(false);
@@ -210,5 +203,75 @@ public class MainView extends VerticalLayout {
 
         row.add(rowContent);
         return row;
+    }
+
+    /**
+     * SEO: Применяет мета-данные для поисковых систем.
+     */
+    private void applySeoMeta() {
+        // Meta description для поисковиков
+        metaDescription("Портфолио Java-разработчика с данными из GitHub: репозитории, проекты, статистика");
+        // Geo-метаданные
+        geoLocation("Russia", "Kstovo");
+        // Open Graph для соцсетей
+        ogTitle("Егор Гаврилов - Java-разработчик");
+        ogType("profile");
+        ogSiteName("GitHub Portfolio");
+    }
+
+    private void metaDescription(String description) {
+        // Добавляем meta tag через Vaadin
+        getElement().executeJs(
+            "var meta = document.createElement('meta');" +
+            "meta.name = 'description';" +
+            "meta.content = $0;" +
+            "document.head.appendChild(meta);",
+            description
+        );
+    }
+
+    private void geoLocation(String region, String placename) {
+        getElement().executeJs(
+            "var meta1 = document.createElement('meta');" +
+            "meta1.name = 'geo.region';" +
+            "meta1.content = $0;" +
+            "document.head.appendChild(meta1);" +
+            "var meta2 = document.createElement('meta');" +
+            "meta2.name = 'geo.placename';" +
+            "meta2.content = $1;" +
+            "document.head.appendChild(meta2);",
+            region,
+            placename
+        );
+    }
+
+    private void ogTitle(String title) {
+        getElement().executeJs(
+            "var meta = document.createElement('meta');" +
+            "meta.property = 'og:title';" +
+            "meta.content = $0;" +
+            "document.head.appendChild(meta);",
+            title
+        );
+    }
+
+    private void ogType(String type) {
+        getElement().executeJs(
+            "var meta = document.createElement('meta');" +
+            "meta.property = 'og:type';" +
+            "meta.content = $0;" +
+            "document.head.appendChild(meta);",
+            type
+        );
+    }
+
+    private void ogSiteName(String name) {
+        getElement().executeJs(
+            "var meta = document.createElement('meta');" +
+            "meta.property = 'og:site_name';" +
+            "meta.content = $0;" +
+            "document.head.appendChild(meta);",
+            name
+        );
     }
 }

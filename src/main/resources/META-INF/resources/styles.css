@@ -1,3 +1,5 @@
+@import '@vaadin/aura/aura.css';
+
 @font-face {
     font-family: 'Cantarell';
     /* Так как ttf-файл лежит в той же папке, что и этот css, пишем просто имя файла */
@@ -157,6 +159,164 @@ html[theme~="dark"] {
     color: var(--adwaita-text);
 }
 
+/* Навигация */
+.adwaita-navigation {
+    background-color: var(--adwaita-header-bg);
+    border-bottom: 1px solid var(--adwaita-card-border);
+    padding: 8px 16px;
+    gap: 16px;
+    justify-content: center;
+}
+
+.nav-link {
+    color: var(--adwaita-accent) !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+    background-color: var(--adwaita-card-border);
+}
+
+/* Био пользователя */
+.adwaita-bio {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--adwaita-text);
+    margin: 0;
+}
+
+/* Карточки метрик статистики */
+.adwaita-metrics-card {
+    background-color: var(--adwaita-card-bg);
+    border: 1px solid var(--adwaita-card-border);
+    border-radius: 12px;
+    padding: 24px !important;
+    margin-bottom: 24px;
+}
+
+.adwaita-metrics-row {
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.adwaita-metric {
+    background-color: var(--adwaita-bg);
+    border-radius: 8px;
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+    max-width: 180px;
+}
+
+.adwaita-metric-value {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: var(--adwaita-accent);
+    margin: 0 0 4px 0 !important;
+}
+
+.adwaita-metric-label {
+    font-size: 12px !important;
+    color: var(--adwaita-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 !important;
+}
+
+/* Карточки языков программирования */
+.adwaita-lang-card {
+    background-color: var(--adwaita-card-bg);
+    border: 1px solid var(--adwaita-card-border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.adwaita-lang-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--adwaita-text);
+    margin: 0 0 12px 0 !important;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--adwaita-card-border);
+}
+
+.adwaita-repo-row {
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--adwaita-card-border);
+}
+
+.adwaita-repo-row:last-child {
+    border-bottom: none;
+}
+
+.adwaita-repo-link {
+    color: var(--adwaita-accent) !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.adwaita-repo-link:hover {
+    text-decoration: underline !important;
+}
+
+.adwaita-repo-stars {
+    font-size: 13px;
+    color: var(--adwaita-text-secondary);
+}
+
+/* Карточки Gists */
+.adwaita-gist-card {
+    background-color: var(--adwaita-card-bg);
+    border: 1px solid var(--adwaita-card-border);
+    border-radius: 12px;
+    padding: 20px !important;
+    margin-bottom: 16px;
+}
+
+.adwaita-gist-link {
+    color: var(--adwaita-accent) !important;
+    text-decoration: none !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.adwaita-gist-link:hover {
+    text-decoration: underline !important;
+}
+
+.adwaita-gist-description {
+    font-size: 14px;
+    color: var(--adwaita-text);
+    margin: 0 0 12px 0;
+}
+
+.adwaita-gist-meta {
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.adwaita-gist-meta-item {
+    font-size: 13px;
+    color: var(--adwaita-text-secondary);
+}
+
+.adwaita-gist-files {
+    font-size: 14px;
+    padding-left: 20px;
+    margin: 8px 0 0 0;
+}
+
 /* Системные уведомления ошибок/загрузок */
 .loading, .warning, .error {
     padding: 12px;
@@ -168,3 +328,4 @@ html[theme~="dark"] {
 }
 .warning { background-color: #fef3c7; color: #92400e; }
 .error { background-color: #fee2e2; color: #991b1b; }
+.loading { background-color: #e3f2fd; color: #1565c0; }

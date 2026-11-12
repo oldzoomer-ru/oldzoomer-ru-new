@@ -6,13 +6,13 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.PWA;
-import com.vaadin.flow.theme.aura.Aura;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
-@StyleSheet(Aura.STYLESHEET)
-@StyleSheet("styles.css") // Your custom styles
+@EnableCaching
+@StyleSheet("styles.css")
 @Push
 @PageTitle("Егор Гаврилов - Java-разработчик")
 @Viewport("width=device-width, initial-scale=1")
