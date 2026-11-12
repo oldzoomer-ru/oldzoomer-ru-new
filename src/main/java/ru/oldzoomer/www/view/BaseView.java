@@ -123,14 +123,9 @@ public abstract class BaseView extends VerticalLayout implements BeforeEnterObse
 
     // ─── Секции (переиспользуемые) ─────────────────────────────────────────
 
-    protected VerticalLayout buildScrollableContent(GitHubDisplayData data) {
+    protected VerticalLayout buildScrollableContent() {
         VerticalLayout container = new VerticalLayout();
         container.addClassName("adwaita-content-container");
-
-        if (!data.contactInfo().isBlank() || !data.bio().isBlank()) {
-            Div subHeader = createSubHeader(data);
-            container.add(subHeader);
-        }
 
         return container;
     }
@@ -213,23 +208,6 @@ public abstract class BaseView extends VerticalLayout implements BeforeEnterObse
 
         row.add(rowContent);
         return row;
-    }
-
-    private static Div createSubHeader(GitHubDisplayData data) {
-        Div subHeader = new Div();
-        subHeader.addClassName("adwaita-sub-header");
-
-        if (!data.contactInfo().isBlank()) {
-            Paragraph contacts = new Paragraph(data.contactInfo());
-            contacts.addClassName("adwaita-contacts");
-            subHeader.add(contacts);
-        }
-        if (!data.bio().isBlank()) {
-            Paragraph bio = new Paragraph(data.bio());
-            bio.addClassName("adwaita-bio");
-            subHeader.add(bio);
-        }
-        return subHeader;
     }
 
     // ─── SEO ───────────────────────────────────────────────────────────────

@@ -35,7 +35,7 @@ public class ReposView extends BaseView {
 
     private void loadRepos() {
         loadData("Загрузка репозиториев...", data -> {
-            VerticalLayout container = buildScrollableContent(data);
+            VerticalLayout container = buildScrollableContent();
 
             HorizontalLayout filterPanel = buildFilterPanel();
             container.add(filterPanel);

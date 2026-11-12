@@ -20,7 +20,7 @@ public class MainView extends BaseView {
 
     private void loadGitHubData() {
         loadData("Загрузка данных GitHub...", data -> {
-            VerticalLayout container = buildScrollableContent(data);
+            VerticalLayout container = buildScrollableContent();
             buildSections(container, data);
             return container;
         });

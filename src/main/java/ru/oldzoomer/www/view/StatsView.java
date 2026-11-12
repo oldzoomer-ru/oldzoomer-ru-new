@@ -19,7 +19,7 @@ public class StatsView extends BaseView {
 
     private void loadStats() {
         loadData("Загрузка статистики...", data -> {
-            VerticalLayout container = buildScrollableContent(data);
+            VerticalLayout container = buildScrollableContent();
             addSection(container, "Общая статистика", data.stats());
             return container;
         });
