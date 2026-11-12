@@ -110,14 +110,12 @@ public abstract class BaseView extends VerticalLayout implements BeforeEnterObse
 
         RouterLink mainLink = new RouterLink("Главная", MainView.class);
         RouterLink reposLink = new RouterLink("Репозитории", ReposView.class);
-        RouterLink statsLink = new RouterLink("Статистика", StatsView.class);
 
         String navLinkClass = "nav-link";
         mainLink.addClassName(navLinkClass);
         reposLink.addClassName(navLinkClass);
-        statsLink.addClassName(navLinkClass);
 
-        nav.add(mainLink, reposLink, statsLink);
+        nav.add(mainLink, reposLink);
         return nav;
     }
 
