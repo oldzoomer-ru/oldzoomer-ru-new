@@ -2,6 +2,7 @@ package ru.oldzoomer.www.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
 import ru.oldzoomer.www.model.GitHubActivity;
 import ru.oldzoomer.www.model.GitHubData;
@@ -18,7 +19,7 @@ public class GitHubDataConfig {
      * Получает все данные GitHub для текущего пользователя.
      * Использует Spring Cache для уменьшения количества запросов к API.
      */
-    @Bean GitHubData fetchAll(GitHubDataService gitHubDataService) {
+    @Bean @VaadinSessionScope GitHubData fetchAll(GitHubDataService gitHubDataService) {
         GitHubProfile profile = gitHubDataService.fetchProfile();
         String profileReadme = gitHubDataService.fetchProfileReadme();
         List<GitHubRepo> allRepos = gitHubDataService.fetchAllRepos();
