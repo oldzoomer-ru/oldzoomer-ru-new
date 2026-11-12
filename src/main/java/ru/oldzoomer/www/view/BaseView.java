@@ -1,6 +1,6 @@
 package ru.oldzoomer.www.view;
 
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -173,7 +173,15 @@ public abstract class BaseView extends VerticalLayout implements BeforeEnterObse
 
         H3 entryTitle = new H3(item.title());
         entryTitle.addClassName("adwaita-row-title");
-        rowContent.add(entryTitle);
+
+        if (item.url() != null && !item.url().isBlank()) {
+            Anchor link = new Anchor(item.url(), item.title());
+            link.addClassName("adwaita-row-title");
+            link.getElement().setAttribute("target", "_blank");
+            rowContent.add(link);
+        } else {
+            rowContent.add(entryTitle);
+        }
 
         if (!item.subtitle().isBlank()) {
             Paragraph subtitle = new Paragraph(item.subtitle());

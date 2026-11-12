@@ -237,9 +237,6 @@ public class GitHubDisplayService {
 
     private String buildRepoSubtitle(GitHubRepo repo) {
         List<String> parts = new ArrayList<>();
-        if (repo.defaultBranch() != null) {
-            parts.add(repo.defaultBranch());
-        }
         if (repo.updatedAt() != null) {
             parts.add("Обновлено: " + formatDate(repo.updatedAt()));
         }

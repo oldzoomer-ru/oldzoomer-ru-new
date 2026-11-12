@@ -86,7 +86,7 @@ public class ReposView extends BaseView {
     }
 
     private void addClickHandler(Div btn, String filterType, Div... buttons) {
-        btn.getElement().addEventListener("click").listener(e -> {
+        btn.getElement().addEventListener("click", e -> {
             for (Div b : buttons) {
                 b.getClassNames().remove(BTN_ACTIVE);
             }
@@ -111,7 +111,7 @@ public class ReposView extends BaseView {
     }
 
     private String getSectionTitle(VerticalLayout section) {
-        for (Component item : section) {
+        for (Component item : section.getChildren().toList()) {
             if (item instanceof H2 h2) {
                 return h2.getText();
             }
@@ -132,8 +132,8 @@ public class ReposView extends BaseView {
     private void filterSection(VerticalLayout section, String query) {
         boolean anyVisible = false;
 
-        for (Component item : section) {
-            if (item instanceof VerticalLayout card && card.hasStyleName("adwaita-card")) {
+        for (Component item : section.getChildren().toList()) {
+            if (item instanceof VerticalLayout card && card.getClassNames().contains("adwaita-card")) {
                 boolean cardVisible = query.isEmpty() || isCardMatch(card, query);
                 card.setVisible(cardVisible);
                 if (cardVisible) anyVisible = true;
@@ -144,7 +144,7 @@ public class ReposView extends BaseView {
     }
 
     private boolean isCardMatch(VerticalLayout card, String query) {
-        for (Component row : card) {
+        for (Component row : card.getChildren().toList()) {
             if (row instanceof Div rowDiv && rowDiv.getText().toLowerCase().contains(query)) {
                 return true;
             }
@@ -154,7 +154,7 @@ public class ReposView extends BaseView {
 
     private List<Component> getContentComponents() {
         List<Component> components = new ArrayList<>();
-        for (Component c : this) {
+        for (Component c : getChildren().toList()) {
             if (!(c instanceof HorizontalLayout)) {
                 components.add(c);
             }
